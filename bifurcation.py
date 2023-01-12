@@ -15,8 +15,12 @@ import plotly.express as px
 # kann zu performance Problemen im Browser kommen, das Ausrechnen an sich geht relativ flott
 # Die Grafik wird angezeigt, das Interagieren (zoomen etc) kann aber laggen
 start_x = 0.5
+# r-intervall festlegen
 intervall = 0.001
-max_x_pro_r = 600
+# maximale anzahl x-werte pro r-wert
+max_x_pro_r = 1000
+# Iterationen (bzw. Jahre) vor dem Einsetzen der neuen Ergebnisse ins Bifurkationsdiagramm
+its_vor_einsetzen = 300
 
 # Liste mit r-werten generieren
 r_values = []
@@ -41,9 +45,9 @@ for r in r_values:
 
     # Iterationen-Counter
     its = 0
-    while its <= 300:
+    while its <= its_vor_einsetzen:
 
-        # Formel anwenden (300 mal)
+        # Formel anwenden (its_vor_einsetzen mal)
         current_x = r * current_x * (1 - current_x)
         its += 1
 
@@ -104,6 +108,40 @@ def diagramm(x_werte,y_werte,x_achse,y_achse,titel):
     # Im Browser anzeigen
     figure.show()
 
+# Zusätzlich wollen wir gerne sehen, wie viele x-Werte es gibt für jedes r:
+# Da es sich aber nur um eine Näherung handelt, bzw. nur 300 Iterationen vor dem Aufzeichnen
+# für das Bifurkation gibt, scheint es hier Unreinheiten zu geben für 0.05 < r < 1.05 und um ca. 3
+# Durch mehr Iterationen vor dem Einsetzen in die x_values wird der Bereich kleiner, ist
+# aber auch noch bei its_vor_einsetzen = 100000 vorhanden, hier dauert das Rechnen des Computers dementsprechend
+# lange, im eigentlichen Bifurkationsdiagramm ist diese Unsauberheit nicht zu sehen
+x_values_count = [len(item) for item in x_values_list]
+
+# Graph Funktion aus population_r.py
+def graph(x_werte,y_werte,x_achse,y_achse,titel): 
+
+    # Erstellen des Dataframe  
+    df = pd.DataFrame(dict(
+        x = x_werte,
+        y = y_werte,
+    ))
+
+    # Erstellen des Diagramms
+    figure = px.line(
+        df, 
+        x = 'x', 
+        y = 'y', 
+        labels={
+            'x' : x_achse,
+            'y' : y_achse
+        },
+        title = titel)
+
+    # Anzeigen des Diagramms im Browser
+    figure.show()
+
+
+
 
 if __name__ == "__main__":
-   diagramm(r_values_new, x_values_list_new, 'Reproduktionsfaktor r', 'Population nach 300+ Jahren ("Gleichgewichtspopulation")', 'Bifurkationsdiagramm für xn+1 = r * xn * (1 - xn)')
+    graph(r_values, x_values_count, 'Reproduktionsrate r', 'Anzahl x-Werte',f'Anzahl x-Werte pro r-Wert (maximal {max_x_pro_r})')
+    diagramm(r_values_new, x_values_list_new, 'Reproduktionsfaktor r', 'Population nach 300+ Jahren ("Gleichgewichtspopulation")', 'Bifurkationsdiagramm für xn+1 = r * xn * (1 - xn)')
