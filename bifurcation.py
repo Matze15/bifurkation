@@ -1,54 +1,64 @@
-# Import relevanter Module
+# Import notwendiger Module
+import numpy as np
 import pandas as pd
 import plotly.express as px
 
-# Einstellungen
-settings = {
-    "start_x" : None,
-    "iterations" : None,
-    "r" : None
-}
+# Plan: 
+# für jedes 0 > r > 4, Intervall 0.01 (oder später ändern):
+# 300 Iterationen "Vorlauf" (sodass sich die Bevölkerung auf Werte eingependelt hat,
+# bei denen die Abweichung kleiner ist, als pythons Dezimalstellensupport)
+# Dann jedes neue x in Liste eintragen,
+# wenn vorhandenes x, Abbrechen
+# wenn fertig, Diagramm erstellen (px.scatter)
 
-# Input vom Benutzer erhalten, ohne Error-Handling (Fehler können durch falschen User-Input entstehen):
-settings['start_x'] = float(input('Populationsstartwert x (0 < x < 1; z.B.: 0.5, .348, 0.96): '))
+# Start x festlegen, dieses Programm, nimmt keinen User input
+start_x = 0.5
 
-settings['r'] = float(input('r-Wert (r > 0, z.B.: 1.34, 3, 3.54): '))
+# Liste mit r-werten generieren
+r_values = []
+for i in np.arange(0, 4, 0.01):
+    # Wert anhängen und runden (Python und Addition sind nicht best friends, z.B.: .1 + .2 = 0.30000000000000004)
+    r_values.append(round(i, 2))
 
-settings['iterations'] = int(input('Iterationen (Für wie viele Jahre soll die Population berechnet werden?, z.B.: 5, 22, 1000): '))
+# In diese Liste kommen später die Listen mit x Werten für die r-Werte:
+x_values_list = []
+
+# Für jedes r ausführen:
+
+for r in r_values:
+
+    # Berechnen kann lange dauern:
+    print(f'Berechne x-Werte für r = {r}')
+
+    current_x = start_x
+
+    # Leere Liste mit nur den x Werten für das r, wodurch gerade geloopt wird
+    x_values = []
+
+    # Iterationen-Counter
+    its = 0
+    while its <= 300:
+
+        # Formel anwenden (300 mal)
+        current_x = r * current_x * (1 - current_x)
+        its += 1
+
+    # Iterationen-Counter zurücksetzen, wenn mehr als 300 Werte gefunden werden, keine
+    # weiteren Werte berechnen
+    its = 0
+    while current_x not in x_values and its < 300:
+
+        # neue x werte an die x_values liste hängen
+        x_values.append(current_x)
+
+        # das aktuelle x updaten:
+        current_x = r * current_x * (1 - current_x)
+
+        its += 1
+    
+    its = 0
+    x_values_list.append(x_values)
 
 
-# Startwert für x festlegen, x wird im Laufe der Iterationen verändert
-x = settings['start_x']
-
-# Liste, in die später die Populationswerte eingetragen werden, erstes x eintragen
-x_values = [x]
-
-# Iterationen durchführen
-while len(x_values) <= settings['iterations'] + 1:
-
-    # Formel anwenden: xn+1 = r * xn (1 - xn)
-    x = settings['r'] * x * (1 - x)
-
-    # Neuen x-Wert in die Liste der x-Werte schreiben
-    x_values.append(x)
-
-# Liste mit Jahreswerten generieren
-years = []
-for i in range(settings['iterations'] + 1):
-    years.append(i)
-
-# Funktion zum Erstellen eines Diagramms, wobei: x/y_werte: Liste; x/y_achse: Achsenbeschriftung (string)
-def graph(x_werte,y_werte,x_achse,y_achse,titel): 
-
-    # Erstellen des Dataframe  
-    df = pd.DataFrame(dict(
-        x = x_werte,
-        y = y_werte,
-    ))
-
-    # Erstellen des Diagramms
-    figure = px.line(df, x = x_achse, y = y_achse, title = titel)
-
-    # Anzeigen des Diagramms im Browser
-    figure.show()
-
+def diagramm():
+    pass

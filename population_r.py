@@ -1,4 +1,4 @@
-# Import relevanter Module
+# Import notwendiger Module
 import pandas as pd
 import plotly.express as px
 
