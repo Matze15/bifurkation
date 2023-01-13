@@ -103,7 +103,7 @@ def diagramm(x_werte,y_werte,x_achse,y_achse,titel):
         },
         title = titel
     )
-    figure.update_traces(marker={'size':1})
+    figure.update_traces(marker={'size':.8})
 
     # Im Browser anzeigen
     figure.show()
