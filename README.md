@@ -23,3 +23,6 @@ Folgende Module werden benötigt:
 `plotly` : `pip install plotly`
 
 `pandas` : `pip install pandas`
+
+## Feigenbaum
+`feigenbaum.py` dient lediglich zur iterativen Berechnung des Feigenbaumpunktes.
